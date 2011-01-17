@@ -19,11 +19,11 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 #include <stdlib.h>
-#include "minisat/core/Solver.h"
+#include "minisat/simp/SimpSolver.h"
 
 using namespace Minisat;
 
-struct solver_t : public Solver { 
+struct minisat_solver_t : public SimpSolver { 
     vec<Lit> clause;
     vec<Lit> assumps;
 };
@@ -34,70 +34,77 @@ extern "C" {
 
 // This implementation of lbool may or not may be an exact mirror of the C++ implementation:
 //
-const solver_lbool solver_l_True  = 1;
-const solver_lbool solver_l_False = 0;
-const solver_lbool solver_l_Undef = -1;
+const minisat_lbool minisat_l_True  = 1;
+const minisat_lbool minisat_l_False = 0;
+const minisat_lbool minisat_l_Undef = -1;
 
-static inline solver_lbool toC(lbool a)
+static inline minisat_lbool toC(lbool a)
 {
-    return a == l_True  ? solver_l_True
-         : a == l_False ? solver_l_False
-         : solver_l_Undef;
+    return a == l_True  ? minisat_l_True
+         : a == l_False ? minisat_l_False
+         : minisat_l_Undef;
 }
 
 // TODO: why are these here?
-solver_lbool solver_get_l_True     (void){ return solver_l_True; }
-solver_lbool solver_get_l_False    (void){ return solver_l_False; }
-solver_lbool solver_get_l_Undef    (void){ return solver_l_Undef; }
+minisat_lbool minisat_get_l_True     (void){ return minisat_l_True; }
+minisat_lbool minisat_get_l_False    (void){ return minisat_l_False; }
+minisat_lbool minisat_get_l_Undef    (void){ return minisat_l_Undef; }
 
 // Solver C-API wrapper functions:
 //
-solver*      solver_new             (void){ return new solver_t(); }
-void         solver_delete          (solver *s){ delete s; }
-solver_Var   solver_newVar          (solver *s){ return s->newVar(); }
-solver_Lit   solver_newLit          (solver *s){ return toInt(mkLit(s->newVar())); }
-solver_Lit   solver_mkLit           (solver_Var x){ return toInt(mkLit(x)); }
-solver_Lit   solver_mkLit_args      (solver_Var x, int sign){ return toInt(mkLit(x,sign)); }
-solver_Lit   solver_negate          (solver_Lit p){ return toInt(~toLit(p)); }
-solver_Var   solver_var             (solver_Lit p){ return var(toLit(p)); }
-int          solver_sign            (solver_Lit p){ return sign(toLit(p)); }
-void         solver_addClause_begin (solver *s){ s->clause.clear(); }
-void         solver_addClause_addLit(solver *s, solver_Lit p){ s->clause.push(toLit(p)); }
-int          solver_addClause_commit(solver *s){ return s->addClause_(s->clause); }
-int          solver_simplify        (solver *s){ return s->simplify(); }
-void         solver_solve_begin     (solver *s){ s->assumps.clear(); }
-void         solver_solve_addLit    (solver *s, solver_Lit p){ s->assumps.push(toLit(p)); }
-int          solver_solve_commit    (solver *s){ return s->solve(s->assumps); }
-solver_lbool solver_limited_solve_commit (solver *s){ return toC(s->solveLimited(s->assumps)); }
+minisat_solver* minisat_new             (void){ return new minisat_solver_t(); }
+void          minisat_delete          (minisat_solver *s){ delete s; }
+minisat_Var   minisat_newVar          (minisat_solver *s){ return s->newVar(); }
+minisat_Lit   minisat_newLit          (minisat_solver *s){ return toInt(mkLit(s->newVar())); }
+minisat_Lit   minisat_mkLit           (minisat_Var x){ return toInt(mkLit(x)); }
+minisat_Lit   minisat_mkLit_args      (minisat_Var x, int sign){ return toInt(mkLit(x,sign)); }
+minisat_Lit   minisat_negate          (minisat_Lit p){ return toInt(~toLit(p)); }
+minisat_Var   minisat_var             (minisat_Lit p){ return var(toLit(p)); }
+int          minisat_sign            (minisat_Lit p){ return sign(toLit(p)); }
+void         minisat_addClause_begin (minisat_solver *s){ s->clause.clear(); }
+void         minisat_addClause_addLit(minisat_solver *s, minisat_Lit p){ s->clause.push(toLit(p)); }
+int          minisat_addClause_commit(minisat_solver *s){ return s->addClause_(s->clause); }
+int          minisat_simplify        (minisat_solver *s){ return s->simplify(); }
 
-int          solver_okay            (solver *s){ return s->okay(); }
-void         solver_setPolarity     (solver *s, solver_Var v, int b){ s->setPolarity(v, b); }
-void         solver_setDecisionVar  (solver *s, solver_Var v, int b){ s->setDecisionVar(v, b); }
-solver_lbool solver_value_Var       (solver *s, solver_Var x){ return toC(s->value(x)); }
-solver_lbool solver_value_Lit       (solver *s, solver_Lit p){ return toC(s->value(toLit(p))); }
-solver_lbool solver_modelValue_Var  (solver *s, solver_Var x){ return toC(s->modelValue(x)); }
-solver_lbool solver_modelValue_Lit  (solver *s, solver_Lit p){ return toC(s->modelValue(toLit(p))); }
-int          solver_num_assigns     (solver *s){ return s->nAssigns(); }
-int          solver_num_clauses     (solver *s){ return s->nClauses(); }
-int          solver_num_learnts     (solver *s){ return s->nLearnts(); }
-int          solver_num_vars        (solver *s){ return s->nVars(); }
-int          solver_num_freeVars    (solver *s){ return s->nFreeVars(); }
-int          solver_conflict_len    (solver *s){ return s->conflict.size(); }
-solver_Lit   solver_conflict_nthLit (solver *s, int i){ return toInt(s->conflict[i]); }
-void         solver_set_verbosity   (solver *s, int v){ s->verbosity = v; }
-int          solver_get_verbosity   (solver *s){ return s->verbosity; }
-int          solver_num_conflicts   (solver *s){ return s->conflicts; }
-int          solver_num_decisions   (solver *s){ return s->decisions; }
-int          solver_num_restarts    (solver *s){ return s->starts; }
-int          solver_num_propagations(solver *s){ return s->propagations; }
+// NOTE: Currently these run with default settings for implicitly calling preprocessing. Turn off
+// before if you don't need it. This may change in the future.
+void         minisat_solve_begin     (minisat_solver *s){ s->assumps.clear(); }
+void         minisat_solve_addLit    (minisat_solver *s, minisat_Lit p){ s->assumps.push(toLit(p)); }
+int          minisat_solve_commit    (minisat_solver *s){ return s->solve(s->assumps); }
+minisat_lbool minisat_limited_solve_commit (minisat_solver *s){ return toC(s->solveLimited(s->assumps)); }
 
-void         solver_set_conf_budget (solver* s, int x){ s->setConfBudget(x); }
-void         solver_set_prop_budget (solver* s, int x){ s->setPropBudget(x); }
-void         solver_no_budget       (solver* s){ s->budgetOff(); }
+int          minisat_okay            (minisat_solver *s){ return s->okay(); }
+void         minisat_setPolarity     (minisat_solver *s, minisat_Var v, int b){ s->setPolarity(v, b); }
+void         minisat_setDecisionVar  (minisat_solver *s, minisat_Var v, int b){ s->setDecisionVar(v, b); }
+minisat_lbool minisat_value_Var      (minisat_solver *s, minisat_Var x){ return toC(s->value(x)); }
+minisat_lbool minisat_value_Lit      (minisat_solver *s, minisat_Lit p){ return toC(s->value(toLit(p))); }
+minisat_lbool minisat_modelValue_Var (minisat_solver *s, minisat_Var x){ return toC(s->modelValue(x)); }
+minisat_lbool minisat_modelValue_Lit (minisat_solver *s, minisat_Lit p){ return toC(s->modelValue(toLit(p))); }
+int          minisat_num_assigns     (minisat_solver *s){ return s->nAssigns(); }
+int          minisat_num_clauses     (minisat_solver *s){ return s->nClauses(); }
+int          minisat_num_learnts     (minisat_solver *s){ return s->nLearnts(); }
+int          minisat_num_vars        (minisat_solver *s){ return s->nVars(); }
+int          minisat_num_freeVars    (minisat_solver *s){ return s->nFreeVars(); }
+int          minisat_conflict_len    (minisat_solver *s){ return s->conflict.size(); }
+minisat_Lit  minisat_conflict_nthLit (minisat_solver *s, int i){ return toInt(s->conflict[i]); }
+void         minisat_set_verbosity   (minisat_solver *s, int v){ s->verbosity = v; }
+int          minisat_get_verbosity   (minisat_solver *s){ return s->verbosity; }
+int          minisat_num_conflicts   (minisat_solver *s){ return s->conflicts; }
+int          minisat_num_decisions   (minisat_solver *s){ return s->decisions; }
+int          minisat_num_restarts    (minisat_solver *s){ return s->starts; }
+int          minisat_num_propagations(minisat_solver *s){ return s->propagations; }
+void         minisat_set_conf_budget (minisat_solver* s, int x){ s->setConfBudget(x); }
+void         minisat_set_prop_budget (minisat_solver* s, int x){ s->setPropBudget(x); }
+void         minisat_no_budget       (minisat_solver* s){ s->budgetOff(); }
+
+// SimpSolver methods:
+void         minisat_setFrozen       (minisat_solver* s, minisat_Var v, minisat_bool b) { s->setFrozen(v, b); }
+minisat_bool minisat_isEliminated    (minisat_solver* s, minisat_Var v) { return s->isEliminated(v); }
+minisat_bool minisat_eliminate       (minisat_solver* s, minisat_bool turn_off_elim){ return s->eliminate(turn_off_elim); }
 
 // Convenience functions for actual c-programmers (not language interfacing people):
 //
-int  solver_solve(solver *s, int len, solver_Lit *ps)
+int  minisat_solve(minisat_solver *s, int len, minisat_Lit *ps)
 {
     s->assumps.clear();
     for (int i = 0; i < len; i++)
@@ -106,7 +113,7 @@ int  solver_solve(solver *s, int len, solver_Lit *ps)
 }
 
 
-solver_lbool solver_limited_solve(solver *s, int len, solver_Lit *ps)
+minisat_lbool minisat_limited_solve(minisat_solver *s, int len, minisat_Lit *ps)
 {
     s->assumps.clear();
     for (int i = 0; i < len; i++)
@@ -115,7 +122,7 @@ solver_lbool solver_limited_solve(solver *s, int len, solver_Lit *ps)
 }
 
 
-int  solver_addClause(solver *s, int len, solver_Lit *ps)
+int  minisat_addClause(minisat_solver *s, int len, minisat_Lit *ps)
 {
     s->clause.clear();
     for (int i = 0; i < len; i++)

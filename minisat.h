@@ -1,5 +1,5 @@
 /***************************************************************************************[minisat.h]
-Copyright (c) 2008, Niklas Sorensson
+Copyright (c) 2008-2011, Niklas Sorensson
               2008, Koen Claessen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -18,90 +18,95 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
-#ifndef Minisat_C_API_h
-#define Minisat_C_API_h
+#ifndef Minisat_C_Bindings_h
+#define Minisat_C_Bindings_h
 
 // SolverTypes:
 //
-typedef struct solver_t solver;
-typedef int solver_Var;
-typedef int solver_Lit;
-typedef int solver_lbool;
+typedef struct minisat_solver_t minisat_solver;
+typedef int minisat_Var;
+typedef int minisat_Lit;
+typedef int minisat_lbool;
+typedef int minisat_bool; // Only for clarity in the declarations below (this is just a plain c-bool).
 
 // Constants: (can these be made inline-able?)
 //
 
-extern const solver_lbool solver_l_True;
-extern const solver_lbool solver_l_False;
-extern const solver_lbool solver_l_Undef;
+extern const minisat_lbool solver_l_True;
+extern const minisat_lbool solver_l_False;
+extern const minisat_lbool solver_l_Undef;
 
 
-solver*      solver_new             (void);
-void         solver_delete          (solver* s);
+minisat_solver* minisat_new             (void);
+void            minisat_delete          (minisat_solver* s);
              
-solver_Var   solver_newVar          (solver *s);
-solver_Lit   solver_newLit          (solver *s);
+minisat_Var     minisat_newVar          (minisat_solver *s);
+minisat_Lit     minisat_newLit          (minisat_solver *s);
              
-solver_Lit   solver_mkLit           (solver_Var x);
-solver_Lit   solver_mkLit_args      (solver_Var x, int sign);
-solver_Lit   solver_negate          (solver_Lit p);
+minisat_Lit     minisat_mkLit           (minisat_Var x);
+minisat_Lit     minisat_mkLit_args      (minisat_Var x, int sign);
+minisat_Lit     minisat_negate          (minisat_Lit p);
                                     
-solver_Var   solver_var             (solver_Lit p);
-int          solver_sign            (solver_Lit p);
+minisat_Var     minisat_var             (minisat_Lit p);
+minisat_bool    minisat_sign            (minisat_Lit p);
              
-int          solver_addClause       (solver *s, int len, solver_Lit *ps);
-void         solver_addClause_begin (solver *s);
-void         solver_addClause_addLit(solver *s, solver_Lit p);
-int          solver_addClause_commit(solver *s);
+minisat_bool    minisat_addClause       (minisat_solver *s, int len, minisat_Lit *ps);
+void            minisat_addClause_begin (minisat_solver *s);
+void            minisat_addClause_addLit(minisat_solver *s, minisat_Lit p);
+minisat_bool    minisat_addClause_commit(minisat_solver *s);
              
-int          solver_simplify        (solver *s);
+minisat_bool    minisat_simplify        (minisat_solver *s);
              
-int          solver_solve           (solver *s, int len, solver_Lit *ps);
-solver_lbool solver_limited_solve   (solver *s, int len, solver_Lit *ps);
-void         solver_solve_begin     (solver *s);
-void         solver_solve_addLit    (solver *s, solver_Lit p);
-int          solver_solve_commit    (solver *s);
-solver_lbool solver_limited_solve_commit
-                                    (solver *s);
+minisat_bool    minisat_solve           (minisat_solver *s, int len, minisat_Lit *ps);
+minisat_lbool   minisat_limited_solve   (minisat_solver *s, int len, minisat_Lit *ps);
+void            minisat_solve_begin     (minisat_solver *s);
+void            minisat_solve_addLit    (minisat_solver *s, minisat_Lit p);
+minisat_bool    minisat_solve_commit    (minisat_solver *s);
+minisat_lbool   minisat_limited_solve_commit
+                                        (minisat_solver *s);
              
-int          solver_okay            (solver *s);
+minisat_bool    minisat_okay            (minisat_solver *s);
              
-void         solver_setPolarity     (solver *s, solver_Var v, int b);
-void         solver_setDecisionVar  (solver *s, solver_Var v, int b);
+void            minisat_setPolarity     (minisat_solver *s, minisat_Var v, int b);
+void            minisat_setDecisionVar  (minisat_solver *s, minisat_Var v, int b);
 
-solver_lbool solver_get_l_True      (void);
-solver_lbool solver_get_l_False     (void);
-solver_lbool solver_get_l_Undef     (void);
+minisat_lbool   minisat_get_l_True      (void);
+minisat_lbool   minisat_get_l_False     (void);
+minisat_lbool   minisat_get_l_Undef     (void);
 
-solver_lbool solver_value_Var       (solver *s, solver_Var x);
-solver_lbool solver_value_Lit       (solver *s, solver_Lit p);
+minisat_lbool   minisat_value_Var       (minisat_solver *s, minisat_Var x);
+minisat_lbool   minisat_value_Lit       (minisat_solver *s, minisat_Lit p);
+minisat_lbool   minisat_modelValue_Var  (minisat_solver *s, minisat_Var x);
+minisat_lbool   minisat_modelValue_Lit  (minisat_solver *s, minisat_Lit p);
 
-solver_lbool solver_modelValue_Var  (solver *s, solver_Var x);
-solver_lbool solver_modelValue_Lit  (solver *s, solver_Lit p);
+int             minisat_num_assigns     (minisat_solver *s);
+int             minisat_num_clauses     (minisat_solver *s);     
+int             minisat_num_learnts     (minisat_solver *s);     
+int             minisat_num_vars        (minisat_solver *s);  
+int             minisat_num_freeVars    (minisat_solver *s);
 
-int          solver_num_assigns     (solver *s);
-int          solver_num_clauses     (solver *s);     
-int          solver_num_learnts     (solver *s);     
-int          solver_num_vars        (solver *s);  
-int          solver_num_freeVars    (solver *s);
+int             minisat_conflict_len    (minisat_solver *s);
+minisat_Lit     minisat_conflict_nthLit (minisat_solver *s, int i);
 
-int          solver_conflict_len    (solver *s);
-solver_Lit   solver_conflict_nthLit (solver *s, int i);
+void            minisat_set_conf_budget (minisat_solver* s, int x);
+void            minisat_set_prop_budget (minisat_solver* s, int x);
+void            minisat_no_budget       (minisat_solver* s);
 
-void         solver_set_conf_budget (solver* s, int x);
-void         solver_set_prop_budget (solver* s, int x);
-void         solver_no_budget       (solver* s);
+// SimpSolver methods:
+void            minisat_setFrozen       (minisat_solver* s, minisat_Var v, minisat_bool b);
+minisat_bool    minisat_isEliminated    (minisat_solver* s, minisat_Var v);
+minisat_bool    minisat_eliminate       (minisat_solver* s, minisat_bool turn_off_elim);
 
 // Setters:
 
-void         solver_set_verbosity   (solver *s, int v);
+void            minisat_set_verbosity   (minisat_solver *s, int v);
 
 // Getters:
 
-int          solver_num_conflicts   (solver *s);
-int          solver_num_decisions   (solver *s);
-int          solver_num_restarts    (solver *s);
-int          solver_num_propagations(solver *s);
+int             minisat_num_conflicts   (minisat_solver *s);
+int             minisat_num_decisions   (minisat_solver *s);
+int             minisat_num_restarts    (minisat_solver *s);
+int             minisat_num_propagations(minisat_solver *s);
 
 /* TODO
 
