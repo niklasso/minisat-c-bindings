@@ -45,6 +45,14 @@ static inline minisat_lbool toC(lbool a)
          : minisat_l_Undef;
 }
 
+static inline lbool fromC(minisat_lbool a)
+{
+    return a == minisat_l_True  ? l_True
+         : a == minisat_l_False ? l_False
+         : l_Undef;
+}
+
+
 // TODO: why are these here?
 minisat_lbool minisat_get_l_True     (void){ return minisat_l_True; }
 minisat_lbool minisat_get_l_False    (void){ return minisat_l_False; }
@@ -74,7 +82,7 @@ int          minisat_solve_commit    (minisat_solver *s){ return s->solve(s->ass
 minisat_lbool minisat_limited_solve_commit (minisat_solver *s){ return toC(s->solveLimited(s->assumps)); }
 
 int          minisat_okay            (minisat_solver *s){ return s->okay(); }
-void         minisat_setPolarity     (minisat_solver *s, minisat_Var v, int b){ s->setPolarity(v, b); }
+void         minisat_setPolarity     (minisat_solver *s, minisat_Var v, minisat_lbool lb){ s->setPolarity(v, fromC(lb)); }
 void         minisat_setDecisionVar  (minisat_solver *s, minisat_Var v, int b){ s->setDecisionVar(v, b); }
 minisat_lbool minisat_value_Var      (minisat_solver *s, minisat_Var x){ return toC(s->value(x)); }
 minisat_lbool minisat_value_Lit      (minisat_solver *s, minisat_Lit p){ return toC(s->value(toLit(p))); }
