@@ -34,9 +34,9 @@ extern "C" {
 
 // This implementation of lbool may or not may be an exact mirror of the C++ implementation:
 //
-const minisat_lbool minisat_l_True  = 1;
-const minisat_lbool minisat_l_False = 0;
-const minisat_lbool minisat_l_Undef = -1;
+extern const minisat_lbool minisat_l_True  = 1;
+extern const minisat_lbool minisat_l_False = 0;
+extern const minisat_lbool minisat_l_Undef = -1;
 
 static inline minisat_lbool toC(lbool a)
 {

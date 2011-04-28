@@ -32,9 +32,9 @@ typedef int minisat_bool; // Only for clarity in the declarations below (this is
 // Constants: (can these be made inline-able?)
 //
 
-extern const minisat_lbool solver_l_True;
-extern const minisat_lbool solver_l_False;
-extern const minisat_lbool solver_l_Undef;
+extern const minisat_lbool minisat_l_True;
+extern const minisat_lbool minisat_l_False;
+extern const minisat_lbool minisat_l_Undef;
 
 
 minisat_solver* minisat_new             (void);
