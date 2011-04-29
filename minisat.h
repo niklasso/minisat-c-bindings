@@ -24,10 +24,16 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 // SolverTypes:
 //
 typedef struct minisat_solver_t minisat_solver;
-typedef int minisat_Var;
-typedef int minisat_Lit;
-typedef int minisat_lbool;
-typedef int minisat_bool; // Only for clarity in the declarations below (this is just a plain c-bool).
+#ifdef Minisat_Opaque
+#define opaque(x) struct { x f; }
+#else
+#define opaque(x) x
+#endif
+typedef opaque(int) minisat_Var;
+typedef opaque(int) minisat_Lit;
+typedef opaque(int) minisat_lbool;
+typedef opaque(int) minisat_bool; // Only for clarity in the declarations below (this is just a plain c-bool).
+#undef opaque
 
 // Constants: (can these be made inline-able?)
 //
