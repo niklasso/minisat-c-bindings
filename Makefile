@@ -1,5 +1,6 @@
 .PHONY:	lr ld lp lsh config all
 all:	lr lsh
+static:	lr
 
 ## Load Previous Configuration ####################################################################
 
@@ -125,7 +126,8 @@ $(BUILD_DIR)/dynamic/lib/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE):
 	$(VERB) mkdir -p $(dir $@)
 	$(VERB) $(CXX) -o $@ -shared -Wl,-soname,$(MBINDC_DLIB).$(SOMAJOR) $^ $(MBINDC_LDFLAGS)
 
-install:	install-headers install-lib
+install:	install-headers install-lib install-lib-static
+install-static:	install-headers install-lib-static
 
 install-headers:
 #       Create directories
@@ -135,11 +137,14 @@ install-headers:
 	  $(INSTALL) -m 644 $$h $(DESTDIR)$(includedir)/$$h ; \
 	done
 
-install-lib: $(BUILD_DIR)/release/lib/$(MBINDC_SLIB) $(BUILD_DIR)/dynamic/lib/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)
+install-lib: $(BUILD_DIR)/dynamic/lib/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m 644 $(BUILD_DIR)/dynamic/lib/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE) $(DESTDIR)$(libdir)
 	ln -sf $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE) $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR)
 	ln -sf $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR) $(DESTDIR)$(libdir)/$(MBINDC_DLIB)
+
+install-lib-static: $(BUILD_DIR)/release/lib/$(MBINDC_SLIB)
+	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m 644 $(BUILD_DIR)/release/lib/$(MBINDC_SLIB) $(DESTDIR)$(libdir)
 
 ## Include generated dependencies
