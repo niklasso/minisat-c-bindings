@@ -140,8 +140,8 @@ install-headers:
 install-lib: $(BUILD_DIR)/dynamic/lib/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m 644 $(BUILD_DIR)/dynamic/lib/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE) $(DESTDIR)$(libdir)
-	ln -sf $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE) $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR)
-	ln -sf $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR) $(DESTDIR)$(libdir)/$(MBINDC_DLIB)
+	ln -sf $(MBINDC_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE) $(DESTDIR)$(libdir)/$(MBINDC_DLIB).$(SOMAJOR)
+	ln -sf $(MBINDC_DLIB).$(SOMAJOR) $(DESTDIR)$(libdir)/$(MBINDC_DLIB)
 
 install-lib-static: $(BUILD_DIR)/release/lib/$(MBINDC_SLIB)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
