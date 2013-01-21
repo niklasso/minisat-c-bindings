@@ -98,6 +98,10 @@ void            minisat_set_conf_budget (minisat_solver* s, int x);
 void            minisat_set_prop_budget (minisat_solver* s, int x);
 void            minisat_no_budget       (minisat_solver* s);
 
+// Resource constraints:
+void minisat_interrupt(minisat_solver* s);
+void minisat_clearInterrupt(minisat_solver* s);
+
 // SimpSolver methods:
 void            minisat_setFrozen       (minisat_solver* s, minisat_Var v, minisat_bool b);
 minisat_bool    minisat_isEliminated    (minisat_solver* s, minisat_Var v);
